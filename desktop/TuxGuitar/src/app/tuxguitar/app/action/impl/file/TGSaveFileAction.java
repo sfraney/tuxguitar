@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.tuxguitar.action.TGActionContext;
+import app.tuxguitar.action.TGActionException;
 import app.tuxguitar.action.TGActionManager;
 import app.tuxguitar.app.document.TGDocumentFileManager;
 import app.tuxguitar.app.view.dialog.file.TGFileChooserHandler;
@@ -12,6 +13,7 @@ import app.tuxguitar.editor.action.file.TGWriteSongAction;
 import app.tuxguitar.io.base.TGFileFormat;
 import app.tuxguitar.io.base.TGFileFormatManager;
 import app.tuxguitar.util.TGContext;
+import app.tuxguitar.util.error.TGErrorManager;
 
 public class TGSaveFileAction extends TGActionBase {
 
@@ -29,10 +31,14 @@ public class TGSaveFileAction extends TGActionBase {
 			public void updateFileName(final String fileName) {
 				new Thread(new Runnable() {
 					public void run() {
-						context.setAttribute(TGWriteFileAction.ATTRIBUTE_FILE_NAME, fileName);
+						try {
+							context.setAttribute(TGWriteFileAction.ATTRIBUTE_FILE_NAME, fileName);
 
-						TGActionManager tgActionManager = TGActionManager.getInstance(getContext());
-						tgActionManager.execute(TGWriteFileAction.NAME, context);
+							TGActionManager tgActionManager = TGActionManager.getInstance(getContext());
+							tgActionManager.execute(TGWriteFileAction.NAME, context);
+						} catch (TGActionException e) {
+							TGErrorManager.getInstance(getContext()).handleError(e);
+						}
 					}
 				}).start();
 			}

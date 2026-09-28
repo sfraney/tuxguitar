@@ -46,6 +46,7 @@ import app.tuxguitar.app.action.impl.file.TGExportSongAction;
 import app.tuxguitar.app.action.impl.file.TGImportSongAction;
 import app.tuxguitar.app.action.impl.file.TGOpenFileAction;
 import app.tuxguitar.app.action.impl.file.TGOpenURLAction;
+import app.tuxguitar.app.action.impl.file.TGOpenVersionHistoryDialogAction;
 import app.tuxguitar.app.action.impl.file.TGPrintAction;
 import app.tuxguitar.app.action.impl.file.TGPrintPreviewAction;
 import app.tuxguitar.app.action.impl.file.TGReadURLAction;
@@ -298,6 +299,7 @@ public class TGActionInstaller {
 		installAction(new TGExitAction(context));
 		installAction(new TGPrintAction(context));
 		installAction(new TGPrintPreviewAction(context));
+		installAction(new TGOpenVersionHistoryDialogAction(context));
 
 		//edit actions
 		installAction(new TGCutAction(context));

@@ -1,5 +1,6 @@
 package app.tuxguitar.app.view.menu.impl;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -19,11 +20,13 @@ import app.tuxguitar.app.action.impl.file.TGExportSongAction;
 import app.tuxguitar.app.action.impl.file.TGImportSongAction;
 import app.tuxguitar.app.action.impl.file.TGOpenFileAction;
 import app.tuxguitar.app.action.impl.file.TGOpenURLAction;
+import app.tuxguitar.app.action.impl.file.TGOpenVersionHistoryDialogAction;
 import app.tuxguitar.app.action.impl.file.TGPrintAction;
 import app.tuxguitar.app.action.impl.file.TGPrintPreviewAction;
 import app.tuxguitar.app.action.impl.file.TGReadURLAction;
 import app.tuxguitar.app.action.impl.file.TGSaveAsFileAction;
 import app.tuxguitar.app.action.impl.file.TGSaveFileAction;
+import app.tuxguitar.app.document.TGDocumentFileManager;
 import app.tuxguitar.app.helper.TGFileHistory;
 import app.tuxguitar.app.system.icons.TGIconManager;
 import app.tuxguitar.app.view.menu.TGMenuItem;
@@ -37,6 +40,7 @@ import app.tuxguitar.io.base.TGSongExporter;
 import app.tuxguitar.io.base.TGSongImporter;
 import app.tuxguitar.io.base.TGSongReader;
 import app.tuxguitar.io.base.TGSongWriter;
+import app.tuxguitar.io.history.TGSongVersionStore;
 import app.tuxguitar.ui.menu.UIMenu;
 import app.tuxguitar.ui.menu.UIMenuActionItem;
 import app.tuxguitar.ui.menu.UIMenuSubMenuItem;
@@ -53,6 +57,7 @@ public class FileMenuItem extends TGMenuItem {
 	private UIMenuActionItem deleteCustomTemplate;
 	private UIMenuActionItem save;
 	private UIMenuActionItem saveAs;
+	private UIMenuActionItem versionHistory;
 	private UIMenuActionItem close;
 	private UIMenuActionItem closeOthers;
 	private UIMenuActionItem closeAll;
@@ -128,6 +133,10 @@ public class FileMenuItem extends TGMenuItem {
 		//--SAVE AS--
 		this.saveAs = this.fileMenuItem.getMenu().createActionItem();
 		this.saveAs.addSelectionListener(this.createActionProcessor(TGSaveAsFileAction.NAME));
+
+		//--VERSION HISTORY--
+		this.versionHistory = this.fileMenuItem.getMenu().createActionItem();
+		this.versionHistory.addSelectionListener(this.createActionProcessor(TGOpenVersionHistoryDialogAction.NAME));
 
 		//--IMPORT | EXPORT--
 		TGFileFormatManager fileFormatManager = TGFileFormatManager.getInstance(this.findContext());
@@ -323,6 +332,20 @@ public class FileMenuItem extends TGMenuItem {
 			fileHistory.setChanged(false);
 		}
 		deleteCustomTemplate.setEnabled(TGUserFileUtils.isUserTemplateReadable());
+		this.versionHistory.setEnabled(this.hasSongVersions());
+	}
+
+	/**
+	 * Whether the current document is a local file with a history sidecar. Only the
+	 * sidecar presence is checked here, to keep this cheap enough for selection events;
+	 * the action itself skips opening a dialog when there is nothing to restore.
+	 */
+	private boolean hasSongVersions() {
+		TGDocumentFileManager fileManager = TGDocumentFileManager.getInstance(this.findContext());
+		if( !fileManager.isLocalFile() ) {
+			return false;
+		}
+		return TGSongVersionStore.versionsDir(new File(fileManager.getCurrentURI())).isDirectory();
 	}
 
 	public void loadProperties(){
@@ -338,6 +361,7 @@ public class FileMenuItem extends TGMenuItem {
 		setMenuItemTextAndAccelerator(this.closeAll, "file.close-all", TGCloseAllDocumentsAction.NAME);
 		setMenuItemTextAndAccelerator(this.save, "file.save", TGSaveFileAction.NAME);
 		setMenuItemTextAndAccelerator(this.saveAs, "file.save-as", TGSaveAsFileAction.NAME);
+		setMenuItemTextAndAccelerator(this.versionHistory, "file.version-history", null);
 		setMenuItemTextAndAccelerator(this.printPreview, "file.print-preview", TGPrintPreviewAction.NAME);
 		setMenuItemTextAndAccelerator(this.print, "file.print", TGPrintAction.NAME);
 		setMenuItemTextAndAccelerator(this.historyItem, "file.history", null);

@@ -45,6 +45,7 @@ import app.tuxguitar.app.action.impl.file.TGExportSongAction;
 import app.tuxguitar.app.action.impl.file.TGImportSongAction;
 import app.tuxguitar.app.action.impl.file.TGOpenFileAction;
 import app.tuxguitar.app.action.impl.file.TGOpenURLAction;
+import app.tuxguitar.app.action.impl.file.TGOpenVersionHistoryDialogAction;
 import app.tuxguitar.app.action.impl.file.TGPrintAction;
 import app.tuxguitar.app.action.impl.file.TGPrintPreviewAction;
 import app.tuxguitar.app.action.impl.file.TGReadURLAction;
@@ -370,6 +371,7 @@ public class TGActionConfigMap extends TGActionMap<TGActionConfig> {
 		this.map(TGExitAction.NAME, LOCKABLE | SYNC_THREAD);
 		this.map(TGPrintAction.NAME, LOCKABLE | SHORTCUT | CONFIRM_IF_INVALID);
 		this.map(TGPrintPreviewAction.NAME, LOCKABLE | SHORTCUT | CONFIRM_IF_INVALID);
+		this.map(TGOpenVersionHistoryDialogAction.NAME, LOCKABLE | SYNC_THREAD);
 
 		//edit actions
 		this.map(TGCutAction.NAME, LOCKABLE | DISABLE_ON_PLAY | SHORTCUT);
