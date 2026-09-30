@@ -15,8 +15,15 @@ every file and removes them again on uninstall.
 * Your existing build machine, to produce the tarball.
 
 Runtime dependencies are declared in the PKGBUILD and installed automatically:
-`jre-openjdk`, `alsa-lib`, `fluidsynth`, `jack2`, `lilv`, `suil`. TuxGuitar
+`java-runtime`, `alsa-lib`, `fluidsynth`, `jack`, `lilv`, `suil`. TuxGuitar
 bundles its own SWT and JNI libraries, so nothing else is required.
+
+`java-runtime` and `jack` are virtual packages rather than `jre-openjdk` and
+`jack2`. Arch makes those conflict with `jdk-openjdk` and `jack` respectively,
+so depending on the concrete names breaks any machine that already has a JDK or
+JACK1 installed. The virtual names accept whatever is already there. The
+headless JRE is deliberately not a valid answer for `java-runtime`, so TuxGuitar
+never ends up without the AWT support SWT needs.
 
 ## Build and install
 

@@ -19,7 +19,18 @@ url="https://www.tuxguitar.app/"
 # build requirements: package() only copies an already-built tree. Build with
 # `makepkg --nodeps` so these do not have to be installed just to tar a
 # prebuilt binary.
-depends=('jre-openjdk' 'alsa-lib' 'fluidsynth' 'jack2' 'lilv' 'suil')
+#
+# java-runtime and jack are virtual packages, chosen deliberately over the
+# concrete jre-openjdk and jack2:
+#   - jre-openjdk conflicts with jdk-openjdk, so depending on it breaks any
+#     machine that already has a full JDK installed. java-runtime is satisfied
+#     by either, so no conflict and nothing gets installed needlessly.
+#   - java-runtime is NOT provided by jre-openjdk-headless, so pacman can never
+#     satisfy this with a headless JRE, which SWT could not use (no AWT).
+#   - jack2 conflicts with jack (JACK1); the virtual jack is satisfied by
+#     jack2 and tolerates JACK1 if it is present from the AUR. Both ship
+#     libjack.so.0, which is all the JNI library links against.
+depends=('java-runtime' 'alsa-lib' 'fluidsynth' 'jack' 'lilv' 'suil')
 optdepends=('wqy-zenhei: correct rendering of Asian characters'
             'qt5-base: Qt5 UI for the optional LV2 synth backend (see README.md)')
 # Build the tarball with the command in README.md; it lands next to this file.
