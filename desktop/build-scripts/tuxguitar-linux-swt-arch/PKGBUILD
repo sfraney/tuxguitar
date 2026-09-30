@@ -1,0 +1,67 @@
+# Wraps a prebuilt "generic GNU/Linux" TuxGuitar build (see INSTALL.md) as an
+# Arch package. No build toolchain is needed on any machine: run makepkg
+# wherever pacman is installed, then install the result with `pacman -U` on
+# every target box.
+
+pkgname=tuxguitar
+_tgver=9.99
+# Must change on every new build, otherwise pacman treats the new package as a
+# downgrade and refuses to install it. Derived from the commit count so it is
+# monotonic. Outside a git checkout this falls back to r0 -- set it by hand.
+_tgcommit="$(git -C "$startdir/../../.." rev-list --count HEAD 2>/dev/null || echo 0)"
+pkgver=$_tgver.r${_tgcommit}
+pkgrel=1
+pkgdesc="Multitrack guitar tablature editor and player"
+arch=('x86_64')
+license=('LGPL2.1')
+url="https://www.tuxguitar.app/"
+# These are runtime requirements of the machine that installs the package, not
+# build requirements: package() only copies an already-built tree. Build with
+# `makepkg --nodeps` so these do not have to be installed just to tar a
+# prebuilt binary.
+depends=('jre-openjdk' 'alsa-lib' 'fluidsynth' 'jack2' 'lilv' 'suil')
+optdepends=('wqy-zenhei: correct rendering of Asian characters'
+            'qt5-base: Qt5 UI for the optional LV2 synth backend (see README.md)')
+# Build the tarball with the command in README.md; it lands next to this file.
+source=('tuxguitar-linux-swt.tar.gz')
+sha256sums=('SKIP')
+# Top-level directory inside the tarball, as written by the upstream build into
+# desktop/build-scripts/tuxguitar-linux-swt/target.
+_tgdir='tuxguitar-9.99-SNAPSHOT-linux-swt'
+# Stops makepkg trying to strip the /usr/bin/tuxguitar symlink.
+options=('!strip')
+
+package() {
+	local opt="$pkgdir/opt/tuxguitar"
+	local _share
+
+	install -d "$pkgdir/opt"
+	cp -a "$srcdir/$_tgdir" "$opt"
+	chmod 755 "$opt/tuxguitar.sh"
+	# Optional: only present when built with -P native-modules.
+	chmod 755 "$opt"/lv2-client/*.bin 2>/dev/null || :
+
+	install -d "$pkgdir/usr/bin" \
+		"$pkgdir/usr/share/applications" \
+		"$pkgdir/usr/share/man/man1" \
+		"$pkgdir/usr/share/metainfo" \
+		"$pkgdir/usr/share/mime/packages" \
+		"$pkgdir/usr/share/pixmaps" \
+		"$pkgdir/usr/share/templates/.source"
+
+	ln -s /opt/tuxguitar/tuxguitar.sh "$pkgdir/usr/bin/tuxguitar"
+
+	for _share in \
+		'applications/TuxGuitar.desktop' \
+		'man/man1/tuxguitar.1' \
+		'metainfo/app.tuxguitar.tuxguitar.metainfo.xml' \
+		'mime/packages/tuxguitar.xml' \
+		'pixmaps/tuxguitar.png' ; do
+		ln -s "/opt/tuxguitar/share/$_share" "$pkgdir/usr/share/$_share"
+	done
+
+	# Same layout dpkg uses for system templates, so TuxGuitar.desktop shows up
+	# among the offered templates.
+	ln -s .source/tuxguitar/TuxGuitar.desktop "$pkgdir/usr/share/templates/TuxGuitar.desktop"
+	ln -s /opt/tuxguitar/share/templates "$pkgdir/usr/share/templates/.source/tuxguitar"
+}

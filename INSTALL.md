@@ -86,6 +86,29 @@ $ cd target/tuxguitar-*
 $ ./tuxguitar.sh
 ```
 
+## Arch Linux
+
+The generic GNU/Linux build above can be packaged as a pacman package, so that a single build can be installed and updated on several machines without unpacking tarballs by hand. See `desktop/build-scripts/tuxguitar-linux-swt-arch/README.md` for the full description.
+
+### Build and Install the Package
+
+Build TuxGuitar as described for generic GNU/Linux above, then:
+
+```sh
+$ (cd desktop/build-scripts/tuxguitar-linux-swt && mvn -e clean verify -P native-modules)
+$ tar -C desktop/build-scripts/tuxguitar-linux-swt/target -czf desktop/build-scripts/tuxguitar-linux-swt-arch/tuxguitar-linux-swt.tar.gz tuxguitar-9.99-SNAPSHOT-linux-swt
+$ cd desktop/build-scripts/tuxguitar-linux-swt-arch
+$ makepkg -f --nodeps
+```
+
+This produces `tuxguitar-9.99.rNNNN-1-x86_64.pkg.tar.zst`, where `NNNN` is the number of commits in the repository, so that each rebuild is seen by pacman as an upgrade rather than a downgrade. The declared dependencies are only required at runtime, not to build the package, which is why `--nodeps` is needed. Copy the file to each machine and install it with
+
+```sh
+$ sudo pacman -U ./tuxguitar-9.99.rNNNN-1-x86_64.pkg.tar.zst
+```
+
+TuxGuitar is then installed to `/opt/tuxguitar` and can be started with `tuxguitar`.
+
 ## Build for Windows on Linux
 
 The Windows version is cross compiled on Ubuntu/Debian with [Mingw-w64](https://mingw-w64.org/).

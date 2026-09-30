@@ -1,0 +1,9 @@
+# Build input produced by the command in README.md.
+tuxguitar-linux-swt.tar.gz
+
+# makepkg output and scratch directories.
+*.pkg.tar.zst
+*.pkg.tar.*
+*.sig
+src/
+pkg/
